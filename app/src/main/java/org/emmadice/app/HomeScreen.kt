@@ -72,7 +72,7 @@ fun HomeScreen(
                 navController.navigate(AppScreen.Communication.route)
             },
             onSettingsClick = {
-                // Se conectará en OT-002
+                navController.navigate(AppScreen.Settings.route)
             },
             onAboutClick = {
                 // Se implementará después del MVP

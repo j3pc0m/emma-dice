@@ -7,6 +7,7 @@ import androidx.navigation.compose.rememberNavController
 import org.emmadice.app.HomeScreen
 import org.emmadice.app.screens.CategoriesScreen
 import org.emmadice.app.screens.CommunicationScreen
+import org.emmadice.app.screens.SettingsScreen
 
 @Composable
 fun NavigationGraph() {
@@ -28,6 +29,10 @@ fun NavigationGraph() {
 
         composable(AppScreen.Communication.route) {
             CommunicationScreen()
+        }
+
+        composable(AppScreen.Settings.route) {
+            SettingsScreen()
         }
     }
 }
