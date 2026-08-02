@@ -1,6 +1,9 @@
 package org.emmadice.app.screens
 
 import android.content.res.Configuration
+import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -18,11 +21,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
+import androidx.core.content.FileProvider
 import org.emmadice.app.design.Dimensions
 import org.emmadice.app.design.TextPrimary
 import org.emmadice.app.ui.theme.Fredoka
+import java.io.File
 
 private val SettingsCardBackground = Color(0xFFEDE7F6)
 private val SettingsActionColor = Color(0xFF6A4C93)
@@ -69,15 +75,24 @@ fun SettingsScreen() {
             )
         ) {
             item {
-                SettingsCard(title = "Papá")
+                SettingsCard(
+                    title = "Papá",
+                    cardKey = "papa"
+                )
             }
 
             item {
-                SettingsCard(title = "Mamá")
+                SettingsCard(
+                    title = "Mamá",
+                    cardKey = "mama"
+                )
             }
 
             item {
-                SettingsCard(title = "Agua")
+                SettingsCard(
+                    title = "Agua",
+                    cardKey = "agua"
+                )
             }
         }
     }
@@ -85,8 +100,27 @@ fun SettingsScreen() {
 
 @Composable
 private fun SettingsCard(
-    title: String
+    title: String,
+    cardKey: String
 ) {
+    val context = LocalContext.current
+
+    val takePictureLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.TakePicture()
+    ) { success ->
+        val message = if (success) {
+            "Fotografía de $title realizada"
+        } else {
+            "Captura cancelada"
+        }
+
+        Toast.makeText(
+            context,
+            message,
+            Toast.LENGTH_SHORT
+        ).show()
+    }
+
     Card(
         modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(
@@ -119,7 +153,25 @@ private fun SettingsCard(
                 Button(
                     modifier = Modifier.weight(1f),
                     onClick = {
-                        // Cámara: siguiente incremento
+                        val imagesDirectory = File(
+                            context.filesDir,
+                            "images"
+                        ).apply {
+                            mkdirs()
+                        }
+
+                        val photoFile = File(
+                            imagesDirectory,
+                            "${cardKey}_photo.jpg"
+                        )
+
+                        val photoUri = FileProvider.getUriForFile(
+                            context,
+                            "${context.packageName}.fileprovider",
+                            photoFile
+                        )
+
+                        takePictureLauncher.launch(photoUri)
                     },
                     colors = ButtonDefaults.buttonColors(
                         containerColor = SettingsActionColor,
