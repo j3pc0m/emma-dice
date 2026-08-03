@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -50,7 +49,6 @@ fun CommunicationCard(
     Card(
         modifier = modifier
             .fillMaxWidth()
-            .sizeIn(minHeight = 220.dp)
             .clickable(onClick = onClick),
         shape = RoundedCornerShape(Dimensions.CardRadius),
         colors = CardDefaults.cardColors(

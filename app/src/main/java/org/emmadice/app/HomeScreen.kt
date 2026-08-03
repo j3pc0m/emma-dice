@@ -3,15 +3,13 @@ package org.emmadice.app
 import android.content.res.Configuration
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -36,69 +34,12 @@ import org.emmadice.app.ui.theme.Borel
 fun HomeScreen(
     navController: NavController
 ) {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(Dimensions.ScreenPadding),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
-    ) {
-        Image(
-            painter = painterResource(R.drawable.emma_dice_logo_v1),
-            contentDescription = "Emma Dice",
-            modifier = Modifier.size(220.dp)
-        )
-
-        Spacer(modifier = Modifier.height(Dimensions.LargeSpacing))
-
-        Text(
-            text = "Emma Dice",
-            fontFamily = Borel,
-            fontSize = 44.sp,
-            color = Color(0xFF4A90E2)
-        )
-
-        Spacer(modifier = Modifier.height(12.dp))
-
-        Text(
-            text = "Comunicación accesible para todos",
-            style = MaterialTheme.typography.bodyLarge
-        )
-
-        Spacer(modifier = Modifier.height(Dimensions.LargeSpacing))
-
-        HomeActionsGrid(
-            onStartClick = {
-                navController.navigate(AppScreen.Communication.route)
-            },
-            onSettingsClick = {
-                navController.navigate(AppScreen.Settings.route)
-            },
-            onAboutClick = {
-                navController.navigate(AppScreen.About.route)
-            }
-        )
-
-        Spacer(modifier = Modifier.height(Dimensions.LargeSpacing))
-
-        Text(
-            text = "Versión 0.1.0",
-            color = Color.Gray
-        )
-    }
-}
-
-@Composable
-private fun HomeActionsGrid(
-    onStartClick: () -> Unit,
-    onSettingsClick: () -> Unit,
-    onAboutClick: () -> Unit
-) {
     val configuration = LocalConfiguration.current
 
     val isTablet = configuration.smallestScreenWidthDp >= 600
     val isLandscape =
         configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
+    val hasReducedHeight = configuration.screenHeightDp < 500
 
     val columnCount = when {
         isTablet && isLandscape -> 3
@@ -107,28 +48,79 @@ private fun HomeActionsGrid(
         else -> 1
     }
 
-    val rowCount = (3 + columnCount - 1) / columnCount
+    val logoSize = when {
+        hasReducedHeight -> 96.dp
+        isTablet -> 220.dp
+        else -> 160.dp
+    }
 
-    val gridHeight =
-        Dimensions.ButtonHeight * rowCount +
-                Dimensions.MediumSpacing * (rowCount - 1)
+    val titleSize = when {
+        hasReducedHeight -> 30.sp
+        isTablet -> 44.sp
+        else -> 36.sp
+    }
+
+    val sectionSpacing = when {
+        hasReducedHeight -> Dimensions.SmallSpacing
+        else -> Dimensions.LargeSpacing
+    }
 
     LazyVerticalGrid(
         columns = GridCells.Fixed(columnCount),
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(gridHeight),
-        contentPadding = PaddingValues(0.dp),
-        horizontalArrangement =
-            Arrangement.spacedBy(Dimensions.MediumSpacing),
-        verticalArrangement =
-            Arrangement.spacedBy(Dimensions.MediumSpacing)
+        contentPadding = PaddingValues(Dimensions.ScreenPadding),
+        horizontalArrangement = Arrangement.spacedBy(
+            Dimensions.MediumSpacing
+        ),
+        verticalArrangement = Arrangement.spacedBy(
+            Dimensions.MediumSpacing
+        )
     ) {
+        item(
+            span = {
+                GridItemSpan(maxLineSpan)
+            }
+        ) {
+            androidx.compose.foundation.layout.Column(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Image(
+                    painter = painterResource(
+                        R.drawable.emma_dice_logo_v1
+                    ),
+                    contentDescription = "Emma Dice",
+                    modifier = Modifier.size(logoSize)
+                )
+
+                Spacer(modifier = Modifier.height(sectionSpacing))
+
+                Text(
+                    text = "Emma Dice",
+                    fontFamily = Borel,
+                    fontSize = titleSize,
+                    color = Color(0xFF4A90E2)
+                )
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Text(
+                    text = "Comunicación accesible para todos",
+                    style = MaterialTheme.typography.bodyLarge
+                )
+
+                Spacer(modifier = Modifier.height(sectionSpacing))
+            }
+        }
+
         item {
             CardItemView(
                 title = "Comenzar",
                 backgroundColor = CategoryPeople,
-                onClick = onStartClick
+                onClick = {
+                    navController.navigate(
+                        AppScreen.Communication.route
+                    )
+                }
             )
         }
 
@@ -136,7 +128,11 @@ private fun HomeActionsGrid(
             CardItemView(
                 title = "Configuración",
                 backgroundColor = PurplePrimary,
-                onClick = onSettingsClick
+                onClick = {
+                    navController.navigate(
+                        AppScreen.Settings.route
+                    )
+                }
             )
         }
 
@@ -144,8 +140,30 @@ private fun HomeActionsGrid(
             CardItemView(
                 title = "Acerca de",
                 backgroundColor = CategoryNeeds,
-                onClick = onAboutClick
+                onClick = {
+                    navController.navigate(
+                        AppScreen.About.route
+                    )
+                }
             )
+        }
+
+        item(
+            span = {
+                GridItemSpan(maxLineSpan)
+            }
+        ) {
+            androidx.compose.foundation.layout.Column(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Spacer(modifier = Modifier.height(sectionSpacing))
+
+                Text(
+                    text = "Versión 0.1.0",
+                    color = Color.Gray
+                )
+            }
         }
     }
 }
