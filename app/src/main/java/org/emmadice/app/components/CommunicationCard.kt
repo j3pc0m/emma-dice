@@ -1,9 +1,14 @@
 package org.emmadice.app.components
 
+import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.graphics.Matrix
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -23,10 +28,15 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.exifinterface.media.ExifInterface
 import org.emmadice.app.design.Dimensions
 import org.emmadice.app.design.TextPrimary
 import org.emmadice.app.model.CommunicationVisual
 import org.emmadice.app.ui.theme.Fredoka
+import java.io.File
+
+private val PlaceholderBackground = Color(0xFFF3F0F7)
+private val PlaceholderTextColor = Color(0xFF6A4C93)
 
 @Composable
 fun CommunicationCard(
@@ -47,7 +57,7 @@ fun CommunicationCard(
             containerColor = backgroundColor
         ),
         elevation = CardDefaults.cardElevation(
-            defaultElevation = Dimensions.CardElevation
+            defaultElevation = 0.dp
         )
     ) {
         Column(
@@ -64,8 +74,7 @@ fun CommunicationCard(
                 contentDescription = contentDescription,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .weight(1f, fill = false)
-                    .sizeIn(minHeight = 140.dp)
+                    .aspectRatio(1f)
             )
 
             Text(
@@ -96,10 +105,18 @@ private fun CommunicationCardImage(
         }
 
         is CommunicationVisual.LocalPhoto -> {
-            val imageBitmap = remember(visual.absolutePath) {
-                BitmapFactory
-                    .decodeFile(visual.absolutePath)
-                    ?.asImageBitmap()
+            val photoFile = remember(visual.absolutePath) {
+                File(visual.absolutePath)
+            }
+
+            val imageBitmap = remember(
+                visual.absolutePath,
+                photoFile.lastModified(),
+                photoFile.length()
+            ) {
+                decodePhotoWithCorrectOrientation(
+                    absolutePath = photoFile.absolutePath
+                )?.asImageBitmap()
             }
 
             if (imageBitmap != null) {
@@ -109,7 +126,100 @@ private fun CommunicationCardImage(
                     modifier = modifier,
                     contentScale = ContentScale.Crop
                 )
+            } else {
+                PlaceholderImage(
+                    initial = titleInitial(contentDescription),
+                    modifier = modifier
+                )
             }
         }
+
+        is CommunicationVisual.Placeholder -> {
+            PlaceholderImage(
+                initial = visual.initial,
+                modifier = modifier
+            )
+        }
     }
+}
+
+@Composable
+private fun PlaceholderImage(
+    initial: String,
+    modifier: Modifier = Modifier
+) {
+    Box(
+        modifier = modifier
+            .background(
+                color = PlaceholderBackground,
+                shape = RoundedCornerShape(Dimensions.CardRadius)
+            ),
+        contentAlignment = Alignment.Center
+    ) {
+        Text(
+            text = initial,
+            fontFamily = Fredoka,
+            fontSize = 64.sp,
+            fontWeight = FontWeight.Bold,
+            color = PlaceholderTextColor
+        )
+    }
+}
+
+private fun titleInitial(title: String): String {
+    return title
+        .trim()
+        .firstOrNull()
+        ?.uppercase()
+        ?: "?"
+}
+
+private fun decodePhotoWithCorrectOrientation(
+    absolutePath: String
+): Bitmap? {
+    val options = BitmapFactory.Options().apply {
+        inSampleSize = 4
+    }
+
+    val originalBitmap =
+        BitmapFactory.decodeFile(absolutePath, options)
+            ?: return null
+
+    val exif = ExifInterface(absolutePath)
+
+    val orientation = exif.getAttributeInt(
+        ExifInterface.TAG_ORIENTATION,
+        ExifInterface.ORIENTATION_NORMAL
+    )
+
+    val rotationDegrees = when (orientation) {
+        ExifInterface.ORIENTATION_ROTATE_90 -> 90f
+        ExifInterface.ORIENTATION_ROTATE_180 -> 180f
+        ExifInterface.ORIENTATION_ROTATE_270 -> 270f
+        else -> 0f
+    }
+
+    if (rotationDegrees == 0f) {
+        return originalBitmap
+    }
+
+    val matrix = Matrix().apply {
+        postRotate(rotationDegrees)
+    }
+
+    val rotatedBitmap = Bitmap.createBitmap(
+        originalBitmap,
+        0,
+        0,
+        originalBitmap.width,
+        originalBitmap.height,
+        matrix,
+        true
+    )
+
+    if (rotatedBitmap !== originalBitmap) {
+        originalBitmap.recycle()
+    }
+
+    return rotatedBitmap
 }

@@ -36,7 +36,7 @@ fun CategoryCard(
         shape = RoundedCornerShape(Dimensions.CardRadius),
 
         elevation = CardDefaults.cardElevation(
-            defaultElevation = Dimensions.CardElevation
+            defaultElevation = 0.dp
         )
     ) {
 

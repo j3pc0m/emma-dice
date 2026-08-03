@@ -18,11 +18,13 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.FileProvider
 import org.emmadice.app.design.Dimensions
@@ -105,20 +107,36 @@ private fun SettingsCard(
 ) {
     val context = LocalContext.current
 
+    val photoFile = remember(context, cardKey) {
+        File(
+            context.filesDir,
+            "images/${cardKey}_photo.jpg"
+        ).also { file ->
+            file.parentFile?.mkdirs()
+        }
+    }
+
     val takePictureLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.TakePicture()
     ) { success ->
-        val message = if (success) {
-            "Fotografía de $title realizada"
+
+        val photoWasSaved =
+            success &&
+                    photoFile.exists() &&
+                    photoFile.length() > 0L
+
+        val message = if (photoWasSaved) {
+            "Fotografía de $title guardada"
         } else {
-            "Captura cancelada"
+            "No se pudo guardar la fotografía"
         }
 
         Toast.makeText(
             context,
             message,
-            Toast.LENGTH_SHORT
+            Toast.LENGTH_LONG
         ).show()
+
     }
 
     Card(
@@ -127,7 +145,7 @@ private fun SettingsCard(
             containerColor = SettingsCardBackground
         ),
         elevation = CardDefaults.cardElevation(
-            defaultElevation = Dimensions.CardElevation
+            defaultElevation = 0.dp
         )
     ) {
         Column(
@@ -153,17 +171,11 @@ private fun SettingsCard(
                 Button(
                     modifier = Modifier.weight(1f),
                     onClick = {
-                        val imagesDirectory = File(
-                            context.filesDir,
-                            "images"
-                        ).apply {
-                            mkdirs()
-                        }
+                        photoFile.parentFile?.mkdirs()
 
-                        val photoFile = File(
-                            imagesDirectory,
-                            "${cardKey}_photo.jpg"
-                        )
+                        if (photoFile.exists()) {
+                            photoFile.delete()
+                        }
 
                         val photoUri = FileProvider.getUriForFile(
                             context,
