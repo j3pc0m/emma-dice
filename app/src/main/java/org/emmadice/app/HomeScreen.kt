@@ -75,7 +75,7 @@ fun HomeScreen(
                 navController.navigate(AppScreen.Settings.route)
             },
             onAboutClick = {
-                // Se implementará después del MVP
+                navController.navigate(AppScreen.About.route)
             }
         )
 
