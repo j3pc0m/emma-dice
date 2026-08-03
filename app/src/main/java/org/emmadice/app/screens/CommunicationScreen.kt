@@ -1,6 +1,7 @@
 package org.emmadice.app.screens
 
 import android.content.res.Configuration
+import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -11,11 +12,14 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import org.emmadice.app.audio.AudioPlayer
 import org.emmadice.app.components.CommunicationCard
 import org.emmadice.app.design.CategoryNeeds
 import org.emmadice.app.design.CategoryPeople
@@ -27,6 +31,16 @@ import java.io.File
 fun CommunicationScreen() {
     val context = LocalContext.current
     val configuration = LocalConfiguration.current
+
+    val audioPlayer = remember {
+        AudioPlayer()
+    }
+
+    DisposableEffect(Unit) {
+        onDispose {
+            audioPlayer.stop()
+        }
+    }
 
     val isLandscape =
         configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
@@ -54,6 +68,26 @@ fun CommunicationScreen() {
         }
     }
 
+    fun playAudio(
+        cardKey: String,
+        title: String
+    ) {
+        val audioFile = File(
+            context.filesDir,
+            "audio/${cardKey}_audio.m4a"
+        )
+
+        val started = audioPlayer.play(audioFile)
+
+        if (!started) {
+            Toast.makeText(
+                context,
+                "La tarjeta $title todavía no tiene audio",
+                Toast.LENGTH_SHORT
+            ).show()
+        }
+    }
+
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -76,7 +110,10 @@ fun CommunicationScreen() {
                     ),
                     backgroundColor = CategoryPeople,
                     onClick = {
-                        // Audio: siguiente incremento
+                        playAudio(
+                            cardKey = "papa",
+                            title = "Papá"
+                        )
                     },
                     modifier = Modifier.weight(1f)
                 )
@@ -89,7 +126,10 @@ fun CommunicationScreen() {
                     ),
                     backgroundColor = CategoryPeople,
                     onClick = {
-                        // Audio: siguiente incremento
+                        playAudio(
+                            cardKey = "mama",
+                            title = "Mamá"
+                        )
                     },
                     modifier = Modifier.weight(1f)
                 )
@@ -102,7 +142,10 @@ fun CommunicationScreen() {
                     ),
                     backgroundColor = CategoryNeeds,
                     onClick = {
-                        // Audio: siguiente incremento
+                        playAudio(
+                            cardKey = "agua",
+                            title = "Agua"
+                        )
                     },
                     modifier = Modifier.weight(1f)
                 )
@@ -141,7 +184,10 @@ fun CommunicationScreen() {
                         ),
                         backgroundColor = CategoryPeople,
                         onClick = {
-                            // Audio: siguiente incremento
+                            playAudio(
+                                cardKey = "papa",
+                                title = "Papá"
+                            )
                         },
                         modifier = Modifier.widthIn(
                             min = cardWidth,
@@ -157,7 +203,10 @@ fun CommunicationScreen() {
                         ),
                         backgroundColor = CategoryPeople,
                         onClick = {
-                            // Audio: siguiente incremento
+                            playAudio(
+                                cardKey = "mama",
+                                title = "Mamá"
+                            )
                         },
                         modifier = Modifier.widthIn(
                             min = cardWidth,
@@ -173,7 +222,10 @@ fun CommunicationScreen() {
                         ),
                         backgroundColor = CategoryNeeds,
                         onClick = {
-                            // Audio: siguiente incremento
+                            playAudio(
+                                cardKey = "agua",
+                                title = "Agua"
+                            )
                         },
                         modifier = Modifier.widthIn(
                             min = cardWidth,

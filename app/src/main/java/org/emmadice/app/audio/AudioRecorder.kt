@@ -33,6 +33,8 @@ class AudioRecorder(
                 setAudioSource(MediaRecorder.AudioSource.MIC)
                 setOutputFormat(MediaRecorder.OutputFormat.MPEG_4)
                 setAudioEncoder(MediaRecorder.AudioEncoder.AAC)
+                setAudioSamplingRate(44_100)
+                setAudioEncodingBitRate(128_000)
                 setOutputFile(outputFile.absolutePath)
                 prepare()
                 start()
