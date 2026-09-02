@@ -6,16 +6,11 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.remember
@@ -44,7 +39,6 @@ fun CommunicationScreen() {
     val context = LocalContext.current
     val configuration = LocalConfiguration.current
 
-    val isTablet = configuration.smallestScreenWidthDp >= 600
     val isLandscape =
         configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
 
@@ -143,7 +137,7 @@ fun CommunicationScreen() {
     }
 
     when {
-        isTablet && isLandscape -> {
+        isLandscape -> {
             Box(
                 modifier = Modifier
                     .fillMaxSize()
@@ -167,7 +161,7 @@ fun CommunicationScreen() {
             }
         }
 
-        isTablet -> {
+        else -> {
             Box(
                 modifier = Modifier
                     .fillMaxSize()
@@ -205,71 +199,6 @@ fun CommunicationScreen() {
                             )
                         }
                     }
-                }
-            }
-        }
-
-        isLandscape -> {
-            BoxWithConstraints(
-                modifier = Modifier.fillMaxSize()
-            ) {
-                /*
-                 * En móvil horizontal manda la altura disponible.
-                 * La lista queda desplazable para no bloquear futuras
-                 * ampliaciones.
-                 */
-                val cardWidth = (maxHeight - 48.dp)
-                    .coerceAtLeast(150.dp)
-                    .coerceAtMost(220.dp)
-
-                LazyRow(
-                    modifier = Modifier.fillMaxSize(),
-                    contentPadding = PaddingValues(
-                        horizontal = Dimensions.ScreenPadding,
-                        vertical = Dimensions.SmallSpacing
-                    ),
-                    horizontalArrangement = Arrangement.spacedBy(
-                        Dimensions.MediumSpacing
-                    ),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    items(
-                        items = cards,
-                        key = { card ->
-                            card.cardKey
-                        }
-                    ) { card ->
-                        CardContent(
-                            card = card,
-                            modifier = Modifier.width(cardWidth)
-                        )
-                    }
-                }
-            }
-        }
-
-        else -> {
-            LazyColumn(
-                modifier = Modifier.fillMaxSize(),
-                contentPadding = PaddingValues(
-                    horizontal = Dimensions.ScreenPadding,
-                    vertical = Dimensions.MediumSpacing
-                ),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(
-                    Dimensions.MediumSpacing
-                )
-            ) {
-                items(
-                    items = cards,
-                    key = { card ->
-                        card.cardKey
-                    }
-                ) { card ->
-                    CardContent(
-                        card = card,
-                        modifier = Modifier.fillMaxWidth()
-                    )
                 }
             }
         }
