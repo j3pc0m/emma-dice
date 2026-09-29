@@ -48,7 +48,7 @@ fun CommunicationScreen() {
 
     DisposableEffect(Unit) {
         onDispose {
-            audioPlayer.stop()
+            audioPlayer.release()
         }
     }
 
@@ -71,6 +71,19 @@ fun CommunicationScreen() {
                 usesNeedsColor = true
             )
         )
+    }
+
+    DisposableEffect(cards) {
+        cards.forEach { card ->
+            audioPlayer.preload(
+                key = card.cardKey,
+                audioFile = File(
+                    context.filesDir,
+                    "audio/${card.cardKey}_audio.m4a"
+                )
+            )
+        }
+        onDispose { }
     }
 
     fun visualFor(
@@ -102,14 +115,21 @@ fun CommunicationScreen() {
             "audio/${card.cardKey}_audio.m4a"
         )
 
-        val started = audioPlayer.play(audioFile)
-
-        if (!started) {
+        val showAudioError = {
             Toast.makeText(
                 context,
                 "La tarjeta ${card.title} todavía no tiene audio",
                 Toast.LENGTH_SHORT
             ).show()
+        }
+        val started = audioPlayer.play(
+            key = card.cardKey,
+            audioFile = audioFile,
+            onError = showAudioError
+        )
+
+        if (!started) {
+            showAudioError()
         }
     }
 
