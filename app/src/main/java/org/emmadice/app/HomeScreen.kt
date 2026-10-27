@@ -21,6 +21,7 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import org.emmadice.app.BuildConfig
 import androidx.navigation.NavController
 import org.emmadice.app.components.CardItemView
 import org.emmadice.app.design.CategoryNeeds
@@ -160,7 +161,7 @@ fun HomeScreen(
                 Spacer(modifier = Modifier.height(sectionSpacing))
 
                 Text(
-                    text = "Versión 0.1.0",
+                    text = "Versión ${BuildConfig.VERSION_NAME}",
                     color = Color.Gray
                 )
             }

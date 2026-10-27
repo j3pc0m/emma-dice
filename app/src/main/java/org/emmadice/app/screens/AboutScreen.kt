@@ -27,6 +27,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import org.emmadice.app.BuildConfig
 import org.emmadice.app.R
 import org.emmadice.app.design.Dimensions
 import org.emmadice.app.design.TextPrimary
@@ -68,7 +69,7 @@ fun AboutScreen() {
             )
 
             Text(
-                text = "Versión 0.1.0 – Birthday Edition",
+                text = "Versión ${BuildConfig.VERSION_NAME} – Birthday Edition",
                 fontFamily = Fredoka,
                 fontSize = 20.sp,
                 fontWeight = FontWeight.SemiBold,
